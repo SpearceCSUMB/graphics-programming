@@ -30,8 +30,6 @@ var Sphere = function(center, radius) {
   }
 
 
-  
-
   // todo - make sure center and radius are replaced with default values if and only if they
   // are invalid or undefined (i.e. center should be of type Vector3 & radius should be a Number)
   // - the default center should be the zero vector
@@ -138,29 +136,6 @@ var Sphere = function(center, radius) {
       };
       return result;
     }
-
-    // Recommended steps
-    // ------------------
-    // 0. (optional) watch the video showing the complete implementation of plane.js
-    //    You may find it useful to see a different piece of geometry coded.
-    // 1. review slides/book math
-    // 2. create the vector(s) needed to solve for the coefficients in the
-    //    quadratic equation
-    // 3. calculate the discriminant
-    // 4. use the discriminant to determine if further computation is necessary
-    // 5. return the following object literal "result" based on the following cases:
-    //    case 1: no VALID intersections
-    //      var result = { hit: false, point: null }
-    //    case 2: 1 or more intersections
-    //      var result = {
-    //        hit: true,
-    //        point: 'a Vector3 containing the closest VALID intersection',
-    //        normal: 'a vector3 containing a unit length normal at the intersection point',
-    //        distance: 'a scalar containing the intersection distance from the ray origin'
-    //      }
-
-  
-
     return result;
   }
 };
