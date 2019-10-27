@@ -1,4 +1,5 @@
 /*
+ * Authors: Kevin Bentley, Samuel Pearce
  * An object type representing an implicit sphere.
  *
  * @param center A Vector3 object representing the position of the center of the sphere
