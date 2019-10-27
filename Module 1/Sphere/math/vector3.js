@@ -79,7 +79,7 @@ var Vector3 = function(x, y, z) {
     // todo - return the magnitude (A.K.A. length) of 'this' vector
     // This should NOT change the values of this.x, this.y, and this.z
     var mag = 0;
-    mag = Math.abs(Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2) + Math.pow(this.z,2)));
+    mag = Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2) + Math.pow(this.z,2));
     return mag;
   };
 
@@ -87,8 +87,7 @@ var Vector3 = function(x, y, z) {
     // todo - return the squared magnitude of this vector ||v||^2
     // This should NOT change the values of this.x, this.y, and this.z
     var mag = 0;
-    mag = Math.abs(Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2) + Math.pow(this.z,2)));
-    mag = Math.pow(mag,2);
+    mag = Math.pow(this.x,2) + Math.pow(this.y,2) + Math.pow(this.z,2);
     return mag;
   };
 
@@ -107,7 +106,7 @@ var Vector3 = function(x, y, z) {
     // todo - Change the components of this vector so that its magnitude will equal 1.
     // This SHOULD change the values of this.x, this.y, and this.z
     var mag = 0;
-    mag = Math.abs(Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2) + Math.pow(this.z,2)));
+    mag = Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2) + Math.pow(this.z,2));
     this.x = this.x / mag;
     this.y = this.y / mag;
     this.z = this.z / mag;
@@ -121,4 +120,26 @@ var Vector3 = function(x, y, z) {
     dp = (this.x * other.x) + (this.y * other.y) + (this.z * other.z);
     return dp;
   };
+
+  // Convenience function, so we can do operations like regular math instead of modifying in place
+  this.minus = function(other) {
+    var newVec = this.clone();
+    newVec.subtract(other);
+    return newVec;
+  }
+
+  // Convenience function, so we can do operations like regular math instead of modifying in place
+  this.plus = function(other) {
+    var newVec = this.clone();
+    newVec.add(other);
+    return newVec;
+  }
+
+  // Convenience function, so we can do operations like regular math instead of modifying in place
+  this.times = function(other) {
+    var newVec = this.clone();
+    newVec.multiplyScalar(other);
+    return newVec;
+  }
+
 };
