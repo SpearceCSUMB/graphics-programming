@@ -61,7 +61,7 @@ var eyeDistance = 1 / Math.tan(fovRadians / 2); // 1 is half the width (from -1 
 var eyeCoordinate = new Vector3(0, 0, eyeDistance); // all of your rays will use this
 
 // Define the scene objects here ------------------
-
+var lightPosition = new Vector3(1,0,0);
 // These are 3d definitions that match all of the math we did in class
 // They also provide a "raycast" function that you can pass a ray to
 // in order to find intersection between the ray and the object
@@ -98,14 +98,56 @@ function setPixelColor(xPixelIndex, yPixelIndex, shadeOfGray /*[0,1]*/) {
 // -----------------------------------------------------------------------------
 function updateAndRender(timeElapsed) {
 	var maxValue = Math.sin(Math.sqrt(2) / 4);
+	var seconds = timeElapsed * 0.001; // convert milliseconds to seconds
+	lightPosition.x = Math.cos(seconds) * 0.5; // radius of 0.5
+	lightPosition.z = Math.sin(seconds) * 0.5; // radius of 0.5
+
 	// Go through every pixel
 	for (var yPixelIndex = 0; yPixelIndex < pixelsDown; ++yPixelIndex) {
 		for (var xPixelIndex = 0; xPixelIndex < pixelsAcross; ++xPixelIndex) {
 
 			// Uncomment this once you've coded generateRayForPixel
 			var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
+			var closestResult;
+
+			var sphereResult = sphere.raycast(pixelRay);
+			var planeResult = plane.raycast(pixelRay);
+			if(planeResult.hit && planeResult.hit)
+			{
+				// Both hit, so use the closer of the two
+				if(sphereResult.distance < planeResult.distance)
+				{
+					setPixelColor(xPixelIndex, yPixelIndex,0.8);
+					closestResult = sphereResult;
+				}
+				else
+				{
+					setPixelColor(xPixelIndex, yPixelIndex,0.5);
+					closestResult = planeResult;
+				}
+			}
+			else if(sphereResult.hit)
+			{
+				setPixelColor(xPixelIndex, yPixelIndex,0.8);
+				closestResult = sphereResult;
+			}
+			else if(planeResult.hit)
+			{
+				setPixelColor(xPixelIndex, yPixelIndex,0.5);
+				closestResult = planeResult;
+			}
+			else
+			{
+				setPixelColor(xPixelIndex, yPixelIndex,0.1);
+				closestResult = null;
+			}
+			if(closestResult)
+			{
+				var normalDotLight = closestResult.normal.dot(lightPosition.minus(closestResult.point).normalized());
+				setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
+			}
 			
-			setPixelColor(xPixelIndex, yPixelIndex, Math.abs(pixelRay.direction.x) / maxValue);
+			//setPixelColor(xPixelIndex, yPixelIndex, Math.abs(pixelRay.direction.x) / maxValue);
 			// See if the ray intersects the sphere or the plane (or every object in our scene)
 			// Uncomment when your sphere or plane code is ready
 			//var sphereResult = sphere.raycast(pixelRay);
