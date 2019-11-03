@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>Raytracer</title>
+    <meta charset="utf-8">
+    <title>Raytracer</title>
 </head>
 <body>
 <canvas id='my-canvas'><canvas>
@@ -67,140 +67,102 @@ var lightPosition = new Vector3(1,0,0);
 // in order to find intersection between the ray and the object
 
 var sphere = new Sphere(new Vector3(0,0,0),0.25);
-//var Plane = function(normal, validPoint, color, reflectivity)
-var plane = new Plane(new Vector3(0,1,0), new Vector3(0,-0.25,0));
 
+//Floor
+var floorPlane = new Plane(new Vector3(0,1,0), new Vector3(0,-0.25,0));
+var leftWall = new Plane(new Vector3(1,0,0), new Vector3(-1,0,0));
+var rightWall = new Plane(new Vector3(-1,0,0), new Vector3(1,0,0));
+var topPlane = new Plane(new Vector3(0,-1,0), new Vector3(0,0.75,0));
+var backWall = new Plane(new Vector3(0,0,1), new Vector3(0,0,-1.5));
 
+var scene = [floorPlane,leftWall,rightWall,topPlane,backWall,sphere];
 // end of raytracer setup ******************************************************
 
 // -----------------------------------------------------------------------------
 // return a ray that goes from the eye point through the pixel at index (xPixelIndex, yPixelIndex)
 function generateRayForPixel(xPixelIndex, yPixelIndex) {
-	var pixelX = -1 + pixelHalfWidth + pixelWidth * xPixelIndex;
-	var pixelY = 1 - pixelHalfWidth - pixelWidth * yPixelIndex;
-	var pixelCoordinate = new Vector3(pixelX, pixelY, 0);
+    var pixelX = -1 + pixelHalfWidth + pixelWidth * xPixelIndex;
+    var pixelY = 1 - pixelHalfWidth - pixelWidth * yPixelIndex;
+    var pixelCoordinate = new Vector3(pixelX, pixelY, 0);
 
-	var direction = pixelCoordinate.minus(eyeCoordinate); // = vector from the eye to the pixel
+    var direction = pixelCoordinate.minus(eyeCoordinate); // = vector from the eye to the pixel
 
-	// Creates a ray from the eye toward the pixelCoordinate
-	var pixelRay = new Ray(eyeCoordinate,direction);
-	return pixelRay;
+    // Creates a ray from the eye toward the pixelCoordinate
+    var pixelRay = new Ray(eyeCoordinate,direction);
+    return pixelRay;
 }
 
 // -----------------------------------------------------------------------------
 function setPixelColor(xPixelIndex, yPixelIndex, shadeOfGray /*[0,1]*/) {
-	var index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
-	imageData.data[index + 0] = shadeOfGray * 255; // red channel
-	imageData.data[index + 1] = shadeOfGray * 255; // green channel
-	imageData.data[index + 2] = shadeOfGray * 255; // blue channel
-	imageData.data[index + 3] = 255;
+    var index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
+    imageData.data[index + 0] = shadeOfGray * 255; // red channel
+    imageData.data[index + 1] = shadeOfGray * 255; // green channel
+    imageData.data[index + 2] = shadeOfGray * 255; // blue channel
+    imageData.data[index + 3] = 255;
 }
 
 function setPixelRGB(xPixelIndex, yPixelIndex, r, g, b /*[0,1]*/) {
-	var index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
-	imageData.data[index + 0] = r; // red channel
-	imageData.data[index + 1] = g; // green channel
-	imageData.data[index + 2] = b; // blue channel
-	imageData.data[index + 3] = 255;
-}
-
-function rayPlaneIntersectTest(ray, plane) {
-
-
+    var index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
+    imageData.data[index + 0] = r; // red channel
+    imageData.data[index + 1] = g; // green channel
+    imageData.data[index + 2] = b; // blue channel
+    imageData.data[index + 3] = 255;
 }
 
 // -----------------------------------------------------------------------------
 function updateAndRender(timeElapsed) {
-	var maxValue = Math.sin(Math.sqrt(2) / 4);
-	var seconds = timeElapsed * 0.001; // convert milliseconds to seconds
-	lightPosition.x = Math.cos(seconds) * 0.5; // radius of 0.5
-	lightPosition.z = Math.sin(seconds) * 0.5; // radius of 0.5
+    var maxValue = Math.sin(Math.sqrt(2) / 4);
+    var seconds = timeElapsed * 0.001; // convert milliseconds to seconds
+    lightPosition.x = Math.cos(seconds) * 0.5; // radius of 0.5
+    lightPosition.z = Math.sin(seconds) * 0.5; // radius of 0.5
 
-	// Go through every pixel
-	for (var yPixelIndex = 0; yPixelIndex < pixelsDown; ++yPixelIndex) {
-		for (var xPixelIndex = 0; xPixelIndex < pixelsAcross; ++xPixelIndex) {
-
-
-            var sun = new Sphere(lightPosition,0.1);
-			// Uncomment this once you've coded generateRayForPixel
-			var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
-			var closestResult;
-            var sunResult = sun.raycast(pixelRay);
-            
-
-            var sphereResult = sphere.raycast(pixelRay);
-            if(sunResult.hit)
-            {
-                if(sphereResult.hit)
-                {
-                    if(sunResult.distance < sphereResult.distance)
-                    {
-                        setPixelRGB(xPixelIndex, yPixelIndex,255,255,0);
-                        continue;
-                    }
-                }
-                else
-                {
-                    setPixelRGB(xPixelIndex, yPixelIndex,255,255,0);
-                    continue;
-                }
-            }
-			var planeResult = plane.raycast(pixelRay);
-			if(planeResult.hit && sphereResult.hit)
-			{
-				// Both hit, so use the closer of the two
-				if(sphereResult.distance < planeResult.distance)
-				{
-                    //Light the sphere
-					setPixelColor(xPixelIndex, yPixelIndex,0.8);
-					closestResult = sphereResult;
-				}
-				else
-				{
-                    //Light the plane
-					setPixelColor(xPixelIndex, yPixelIndex,0.5);
-					closestResult = planeResult;
-				}
-			}
-			else if(sphereResult.hit)
-			{
-                //Only the sphere hit
-				setPixelColor(xPixelIndex, yPixelIndex,0.8);
-				closestResult = sphereResult;
-			}
-			else if(planeResult.hit)
-			{
-                //Only the plane hit
-				setPixelColor(xPixelIndex, yPixelIndex,0.5);
-				closestResult = planeResult;
-			}
-			else
-			{
-                //Nothing hit
-				setPixelColor(xPixelIndex, yPixelIndex,0.1);
-				closestResult = null;
-            }
+    // Go through every pixel
+    for (var yPixelIndex = 0; yPixelIndex < pixelsDown; ++yPixelIndex) {
+        for (var xPixelIndex = 0; xPixelIndex < pixelsAcross; ++xPixelIndex) 
+        {
             var inShadow = false;
-			if(closestResult)
-			{
-                if(!sphereResult.hit && planeResult.hit)
+            var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
+            // Find the closest object seen by the pixelRay
+            var closestObjectResult = null;
+            var closestObject = null;
+            var closestObjectDistance = null;
+            for(var otherObject of scene)
+            {
+                objResult = otherObject.raycast(pixelRay);
+                if(objResult.hit) 
                 {
-                    //#1 Hit the sphere and the sphere is between us and the light (occluded / in shadow)
-                    //Make a ray from us to the light
-                    var hitToLightRay = new Ray(planeResult.point,lightPosition.minus(planeResult.point));
-                    var hitToSphereResult = sphere.raycast(hitToLightRay);
-                    var toLightDistance = planeResult.point.minus(lightPosition).length();
-
-                    if(hitToSphereResult.hit && toLightDistance > hitToSphereResult.distance)
+                    if(closestObjectResult==null || objResult.distance < closestObjectDistance)
                     {
-                        inShadow = true;
+                        closestObjectResult = objResult;
+                        closestObject = otherObject;
+                        closestObjectDistance = objResult.distance;
                     }
                 }
+            }
+            if(closestObjectResult!=null)
+            {
+                var toLightDistanceSqr = closestObjectResult.point.minus(lightPosition).lengthSqr();
+                //Make a ray from the current top-most object (aka closestObject)
+                var hitToLightRay = new Ray(closestObjectResult.point,lightPosition.minus(closestObjectResult.point));
+                //Check to see if any other object is between closestObjectResult.point and the light
+                for(var otherObject of scene)
+                {
+                    if(otherObject!=closestObject) {
+                        // to the light. See if 'otherObject' is between us and the light
+                        var hitToOtherResult = otherObject.raycast(hitToLightRay);
 
+                        if(hitToOtherResult.hit && toLightDistanceSqr > Math.pow(hitToOtherResult.distance,2))
+                        {
+                            inShadow = true;
+                            break;
+                        }
+                    }
+                }
+                
                 if(!inShadow)
                 {
                     //Something was hit, so light the object based on the position of the light
-				    var normalDotLight = closestResult.normal.dot(lightPosition.minus(closestResult.point).normalized());
+                    var normalDotLight = closestObjectResult.normal.dot(lightPosition.minus(closestObjectResult.point).normalized());
                     setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
                 }
                 else
@@ -208,14 +170,20 @@ function updateAndRender(timeElapsed) {
                     setPixelColor(xPixelIndex, yPixelIndex,0);
                 }
             }
-		}
-	}
+            else 
+            {
+                //setPixelColor(xPixelIndex, yPixelIndex,0.1);
+                setPixelRGB(xPixelIndex, yPixelIndex,0,0,128);
+            }
 
-	// Take our array of color data and give to the canvas to display
-	canvasContext.putImageData(imageData, 0, 0);
+        }
+    }
 
-	// Let the browser know it should call this function again when it's time to render
-	requestAnimationFrame(updateAndRender);
+    // Take our array of color data and give to the canvas to display
+    canvasContext.putImageData(imageData, 0, 0);
+
+    // Let the browser know it should call this function again when it's time to render
+    requestAnimationFrame(updateAndRender);
 }
 
 // We are ready to render, let the browser know
