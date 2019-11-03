@@ -35,16 +35,14 @@ var canvasContext = canvas.getContext('2d');
 var imageData = canvasContext.getImageData(0, 0, pixelsAcross, pixelsDown);
 // end canvas setup section *****************************************************
 
-
 // Raytracer scene data setup
 var fov = 45;   // if this changes, your code should still work
-var fovRadians = fov * Math.PI / 180; // todo -> convert degrees to radians
+var fovRadians = fov * Math.PI / 180;
 
-var pixelWidth = 2 / pixelsAcross; // todo -> what's the size of a pixel from left to right? (-1 to 145)
-var pixelHalfWidth = pixelWidth / 2; // todo -> half of the pixel width
+var pixelWidth = 2 / pixelsAcross;
+var pixelHalfWidth = pixelWidth / 2;
 
 // How far away (scalar) the eye is from the image plane (see MV3202 guide for more info)
-// = todo -> hint: related to tangent and field of view (see slides)
 var eyeDistance = 1 / Math.tan(fovRadians / 2); // 1 is half the width (from -1 to 1)
 // -----------
 // |         /
@@ -62,21 +60,21 @@ var eyeCoordinate = new Vector3(0, 0, eyeDistance); // all of your rays will use
 
 // Define the scene objects here ------------------
 var lightPosition = new Vector3(1,0,0);
-// These are 3d definitions that match all of the math we did in class
-// They also provide a "raycast" function that you can pass a ray to
-// in order to find intersection between the ray and the object
 
+var yellow = new Vector3(1,1,0);
+var green = new Vector3(0,1,0);
+var red = new Vector3(1,0,0);
+
+//Added a color to the sphere
 var sphere = new Sphere(new Vector3(0,0,0),0.25);
-
-//Floor
+//Walls, etc.
 var floorPlane = new Plane(new Vector3(0,1,0), new Vector3(0,-0.25,0));
-var leftWall = new Plane(new Vector3(1,0,0), new Vector3(-1,0,0));
-var rightWall = new Plane(new Vector3(-1,0,0), new Vector3(1,0,0));
-var topPlane = new Plane(new Vector3(0,-1,0), new Vector3(0,0.75,0));
-var backWall = new Plane(new Vector3(0,0,1), new Vector3(0,0,-1.5));
+var leftWall = new Plane(new Vector3(1,0,0), new Vector3(-1,0,0),red);
+var rightWall = new Plane(new Vector3(-1,0,0), new Vector3(1,0,0),green);
+var ceiling = new Plane(new Vector3(0,-1,0), new Vector3(0,0.75,0));
+var backWall = new Plane(new Vector3(0,0,1), new Vector3(0,0,-3));
 
-var scene = [floorPlane,leftWall,rightWall,topPlane,backWall,sphere];
-// end of raytracer setup ******************************************************
+var scene = [floorPlane,leftWall,rightWall,backWall,ceiling, sphere];
 
 // -----------------------------------------------------------------------------
 // return a ray that goes from the eye point through the pixel at index (xPixelIndex, yPixelIndex)
@@ -93,19 +91,11 @@ function generateRayForPixel(xPixelIndex, yPixelIndex) {
 }
 
 // -----------------------------------------------------------------------------
-function setPixelColor(xPixelIndex, yPixelIndex, shadeOfGray /*[0,1]*/) {
+function setPixelColor(xPixelIndex, yPixelIndex, color /*[0,1]*/) {
     var index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
-    imageData.data[index + 0] = shadeOfGray * 255; // red channel
-    imageData.data[index + 1] = shadeOfGray * 255; // green channel
-    imageData.data[index + 2] = shadeOfGray * 255; // blue channel
-    imageData.data[index + 3] = 255;
-}
-
-function setPixelRGB(xPixelIndex, yPixelIndex, r, g, b /*[0,1]*/) {
-    var index = (yPixelIndex * pixelsAcross + xPixelIndex) * 4; // 4 bytes per pixel
-    imageData.data[index + 0] = r; // red channel
-    imageData.data[index + 1] = g; // green channel
-    imageData.data[index + 2] = b; // blue channel
+    imageData.data[index + 0] = color.x * 255; // red channel
+    imageData.data[index + 1] = color.y * 255; // green channel
+    imageData.data[index + 2] = color.z * 255; // blue channel
     imageData.data[index + 3] = 255;
 }
 
@@ -148,9 +138,7 @@ function updateAndRender(timeElapsed) {
                 for(var otherObject of scene)
                 {
                     if(otherObject!=closestObject) {
-                        // to the light. See if 'otherObject' is between us and the light
                         var hitToOtherResult = otherObject.raycast(hitToLightRay);
-
                         if(hitToOtherResult.hit && toLightDistanceSqr > Math.pow(hitToOtherResult.distance,2))
                         {
                             inShadow = true;
@@ -163,7 +151,7 @@ function updateAndRender(timeElapsed) {
                 {
                     //Something was hit, so light the object based on the position of the light
                     var normalDotLight = closestObjectResult.normal.dot(lightPosition.minus(closestObjectResult.point).normalized());
-                    setPixelColor(xPixelIndex, yPixelIndex, normalDotLight);
+                    setPixelColor(xPixelIndex, yPixelIndex, closestObject.color.times(normalDotLight));
                 }
                 else
                 {
@@ -172,10 +160,9 @@ function updateAndRender(timeElapsed) {
             }
             else 
             {
-                //setPixelColor(xPixelIndex, yPixelIndex,0.1);
-                setPixelRGB(xPixelIndex, yPixelIndex,0,0,128);
+                //Make the sky blue.
+                setPixelColor(xPixelIndex, yPixelIndex,0,0,128);
             }
-
         }
     }
 
