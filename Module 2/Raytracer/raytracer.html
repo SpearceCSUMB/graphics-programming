@@ -99,9 +99,66 @@ function setPixelColor(xPixelIndex, yPixelIndex, color /*[0,1]*/) {
     imageData.data[index + 3] = 255;
 }
 
+function getSubPixelColor(pixelRay,lightPosition) {
+    var inShadow = false;
+    // Find the closest object seen by the pixelRay
+    var closestObjectResult = null;
+    var closestObject = null;
+    var closestObjectDistance = null;
+    for(var otherObject of scene)
+    {
+        objResult = otherObject.raycast(pixelRay);
+        if(objResult.hit) 
+        {
+            if(closestObjectResult==null || objResult.distance < closestObjectDistance)
+            {
+                closestObjectResult = objResult;
+                closestObject = otherObject;
+                closestObjectDistance = objResult.distance;
+            }
+        }
+    }
+    if(closestObjectResult!=null)
+    {
+        var toLightDistanceSqr = closestObjectResult.point.minus(lightPosition).lengthSqr();
+        //Make a ray from the current top-most object (aka closestObject)
+        var hitToLightRay = new Ray(closestObjectResult.point,lightPosition.minus(closestObjectResult.point));
+        //Check to see if any other object is between closestObjectResult.point and the light
+        for(var otherObject of scene)
+        {
+            if(otherObject!=closestObject) {
+                var hitToOtherResult = otherObject.raycast(hitToLightRay);
+                if(hitToOtherResult.hit && toLightDistanceSqr > hitToOtherResult.distance)
+                {
+                    inShadow = true;
+                    break;
+                }
+            }
+        }
+        
+        if(!inShadow)
+        {
+            //Something was hit, so light the object based on the position of the light
+            var normalDotLight = closestObjectResult.normal.dot(lightPosition.minus(closestObjectResult.point).normalized());
+            return closestObject.color.times(normalDotLight);
+        }
+        else
+        {
+            return new Vector3(0,0,0);
+        }
+    }
+    else 
+    {
+        //Make the sky blue.
+        return new Vector3(0,0,128);
+    }
+
+}
+
+var maxValue = Math.sin(Math.sqrt(2) / 4);
 // -----------------------------------------------------------------------------
 function updateAndRender(timeElapsed) {
-    var maxValue = Math.sin(Math.sqrt(2) / 4);
+    
     var seconds = timeElapsed * 0.001; // convert milliseconds to seconds
     lightPosition.x = Math.cos(seconds) * 0.5; // radius of 0.5
     lightPosition.z = Math.sin(seconds) * 0.5; // radius of 0.5
@@ -110,58 +167,35 @@ function updateAndRender(timeElapsed) {
     for (var yPixelIndex = 0; yPixelIndex < pixelsDown; ++yPixelIndex) {
         for (var xPixelIndex = 0; xPixelIndex < pixelsAcross; ++xPixelIndex) 
         {
-            var inShadow = false;
-            var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
-            // Find the closest object seen by the pixelRay
-            var closestObjectResult = null;
-            var closestObject = null;
-            var closestObjectDistance = null;
-            for(var otherObject of scene)
+            //Set to true for anti-aliasing (and take a big performance hit)
+            if(true)
             {
-                objResult = otherObject.raycast(pixelRay);
-                if(objResult.hit) 
-                {
-                    if(closestObjectResult==null || objResult.distance < closestObjectDistance)
-                    {
-                        closestObjectResult = objResult;
-                        closestObject = otherObject;
-                        closestObjectDistance = objResult.distance;
-                    }
-                }
+                var addedColors = new Vector3(0,0,0);
+                var pixelRay = generateRayForPixel(xPixelIndex - 0.5, yPixelIndex);
+                var pixelColor = getSubPixelColor(pixelRay,lightPosition);
+                addedColors.add(pixelColor);
+
+
+                var pixelRay = generateRayForPixel(xPixelIndex + 0.5, yPixelIndex);
+                var pixelColor = getSubPixelColor(pixelRay,lightPosition);
+                addedColors.add(pixelColor);
+
+                var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex - 0.5);
+                var pixelColor = getSubPixelColor(pixelRay,lightPosition);
+                addedColors.add(pixelColor);
+
+                var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex + 0.5);
+                var pixelColor = getSubPixelColor(pixelRay,lightPosition);
+                addedColors.add(pixelColor);
+
+                addedColors.multiplyScalar(0.25);
+                setPixelColor(xPixelIndex, yPixelIndex,addedColors)
             }
-            if(closestObjectResult!=null)
+            else
             {
-                var toLightDistanceSqr = closestObjectResult.point.minus(lightPosition).lengthSqr();
-                //Make a ray from the current top-most object (aka closestObject)
-                var hitToLightRay = new Ray(closestObjectResult.point,lightPosition.minus(closestObjectResult.point));
-                //Check to see if any other object is between closestObjectResult.point and the light
-                for(var otherObject of scene)
-                {
-                    if(otherObject!=closestObject) {
-                        var hitToOtherResult = otherObject.raycast(hitToLightRay);
-                        if(hitToOtherResult.hit && toLightDistanceSqr > Math.pow(hitToOtherResult.distance,2))
-                        {
-                            inShadow = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if(!inShadow)
-                {
-                    //Something was hit, so light the object based on the position of the light
-                    var normalDotLight = closestObjectResult.normal.dot(lightPosition.minus(closestObjectResult.point).normalized());
-                    setPixelColor(xPixelIndex, yPixelIndex, closestObject.color.times(normalDotLight));
-                }
-                else
-                {
-                    setPixelColor(xPixelIndex, yPixelIndex,0);
-                }
-            }
-            else 
-            {
-                //Make the sky blue.
-                setPixelColor(xPixelIndex, yPixelIndex,0,0,128);
+                var pixelRay = generateRayForPixel(xPixelIndex, yPixelIndex);
+                var pixelColor = getSubPixelColor(pixelRay,lightPosition);
+                setPixelColor(xPixelIndex, yPixelIndex,pixelColor)
             }
         }
     }

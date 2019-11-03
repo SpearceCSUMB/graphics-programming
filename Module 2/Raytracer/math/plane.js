@@ -17,7 +17,7 @@ var Plane = function(normal, validPoint, color, reflectivity) {
 				hit: true,
 				point: hitPoint,
 				normal: this.normal,
-				distance: hitPoint.clone().subtract(ray.origin).length()
+				distance: hitPoint.clone().subtract(ray.origin).lengthSqr()
 			};
 		} else {
 			return { hit: false }

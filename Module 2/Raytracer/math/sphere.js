@@ -94,7 +94,7 @@ var Sphere = function(center, radius,color, reflectivity) {
         hit: true,
         point: intersectionPoint,
         normal: normal,
-        distance: alpha
+        distance: alpha * alpha
       };
       return result;
     }
@@ -127,7 +127,7 @@ var Sphere = function(center, radius,color, reflectivity) {
         hit: true,
         point: intersectionPoint,
         normal: normal,
-        distance: alpha
+        distance: alpha * alpha
       };
       return result;
       
