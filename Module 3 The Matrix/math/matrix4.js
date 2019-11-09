@@ -39,29 +39,34 @@ var Matrix4 = function(x, y, z) {
 		return this;
 	};
 
+
 	// -------------------------------------------------------------------------
 	this.setRotationX = function(degrees) {
-		// todo - convert to radians
-		// var radians = ...
+		this.setIdentity();
+		var radians = degrees * Math.PI / 180;
 
 		// shortcut - use in place of this.elements
 		var e = this.elements;
-
-		// todo - set every element of this matrix to be a rotation around the x-axis
-
+		// set every element of this matrix to be a rotation around the z-axis
+		e[5] = Math.cos(radians);
+		e[6] = -Math.sin(radians);
+		e[9] = Math.sin(radians);
+		e[10] = Math.cos(radians);
 		return this;
 	};
 
 	// -------------------------------------------------------------------------
 	this.setRotationY = function(degrees) {
-		// todo - convert to radians
-		// var radians = ...
+		this.setIdentity();
+		var radians = degrees * Math.PI / 180;
 
 		// shortcut - use in place of this.elements
 		var e = this.elements;
-
-		// todo - set every element of this matrix to be a rotation around the y-axis
-
+		// set every element of this matrix to be a rotation around the z-axis
+		e[0] = Math.cos(radians);
+		e[2] = Math.sin(radians);
+		e[8] = -Math.sin(radians);
+		e[10] = Math.cos(radians);
 		return this;
 	};
 
@@ -86,13 +91,16 @@ var Matrix4 = function(x, y, z) {
 
 	// -------------------------------------------------------------------------
 	this.setRotationZ = function(degrees) {
-		// todo - convert to radians
-		// var radians = ...
+		this.setIdentity();
+		var radians = degrees * Math.PI / 180;
 
 		// shortcut - use in place of this.elements
 		var e = this.elements;
-
-		// todo - set every element of this matrix to be a rotation around the z-axis
+		// set every element of this matrix to be a rotation around the z-axis
+		e[0] = Math.cos(radians);
+		e[1] = -Math.sin(radians);
+		e[4] = Math.sin(radians);
+		e[5] = Math.cos(radians);
 		return this;
 	};
 
