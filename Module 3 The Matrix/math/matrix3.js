@@ -148,7 +148,21 @@ var Matrix3 = function() {
 	// -------------------------------------------------------------------------
 	this.transpose = function() {
 		// todo
-		// modify 'this' matrix so that it becomes its transpose
+		var e = this.elements;
+		var tmatrix = this.clone();
+		var te = tmatrix.elements;
+		e[0] = te[0];
+		e[3] = te[1];
+		e[6] = te[2];
+
+		e[1] = te[3];
+		e[4] = te[4];
+		e[7] = te[5];
+
+		e[2] = te[6];
+		e[5] = te[7];
+		e[8] = te[8];
+
 		return this;
 	};
 
@@ -156,12 +170,15 @@ var Matrix3 = function() {
 	this.inverse = function() {
 		// todo
 		// modify 'this' matrix so that it becomes its inverse
+		var det = this.determinant();
+		this.transpose();
+
 		return this;
 	};
 
 	// -------------------------------------------------------------------------
 	this.log = function() {
-		var e = this.elements;
+		
 		console.log('[ '+
       '\n ' + e[0]  + ', ' + e[1]  + ', ' + e[2]  +
       '\n ' + e[4]  + ', ' + e[5]  + ', ' + e[6]  +
