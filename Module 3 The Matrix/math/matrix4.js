@@ -72,11 +72,17 @@ var Matrix4 = function(x, y, z) {
 		//      - O.W., treat arg1 as x, arg2 as y, and arg3 as z
 		if (arg1 instanceof Vector3) {
 			//...
+			this.elements[3] = arg1.x;
+			this.elements[7] = arg1.y;
+			this.elements[11] = arg1.z;
 		} else {
-			//...
+			this.elements[3] = arg1;
+			this.elements[7] = arg2;
+			this.elements[11] = arg3;
 		}
 		return this;
 	}
+	
 
 	// -------------------------------------------------------------------------
 	this.setRotationZ = function(degrees) {
@@ -93,15 +99,20 @@ var Matrix4 = function(x, y, z) {
 	// -------------------------------------------------------------------------
 	this.setPerspective = function(fovy, aspect, near, far) {
 		// todo - convert fovy to radians
-		// var fovyRads = ...
-
+		var fovyRads = fovy * Math.PI / 180;
 		// todo -compute t (top) and r (right)
-
+		var t = 1/Math.tan(fovyRads * 0.5);
+		var r = t / aspect;
 		// shortcut - use in place of this.elements
 		var e = this.elements;
 
 		// todo - set every element to the appropriate value
-
+		e[0] = r;
+		e[5] = t;
+		e[10] = -((far + near) / (far - near));
+		e[11] = (2 * far * near) / (near - far);
+		e[14] = -1;
+		e[15] = 0;
 		return this;
 	};
 
@@ -112,8 +123,13 @@ var Matrix4 = function(x, y, z) {
 		//      - O.W., treat arg1 as x, arg2 as y, and arg3 as z
 		if (arg1 instanceof Vector3) {
 			//...
+			this.elements[3] += arg1.x;
+			this.elements[7] += arg1.y;
+			this.elements[11] += arg1.z;
 		} else {
-			//...
+			this.elements[3] += arg1;
+			this.elements[7] += arg2;
+			this.elements[11] += arg3;
 		}
 		return this;
 	}
