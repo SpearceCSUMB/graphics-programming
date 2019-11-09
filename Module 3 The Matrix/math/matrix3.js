@@ -166,13 +166,57 @@ var Matrix3 = function() {
 		return this;
 	};
 
+	this.minorDeterminant = function(r, c)
+	{
+		var minorMat = new Float32Array(4);
+		var position = 0;
+		for(var row=0;row<3;row++)
+		{
+			if(r==row)
+				continue;
+			for(var col=0;col<3;col++)
+			{
+				if(c==col)
+					continue;
+				minorMat[position] = this.elements[(row*3) + col];
+				position++;
+			}
+		}
+		var diagnol1 = minorMat[0] * minorMat[3];
+		var diagnol2 = minorMat[1] * minorMat[2];
+		var det = diagnol1 - diagnol2;
+		return det;
+	};
+
 	// -------------------------------------------------------------------------
 	this.inverse = function() {
-		// todo
 		// modify 'this' matrix so that it becomes its inverse
 		var det = this.determinant();
-		this.transpose();
+		// No inverse
+		if(det==0)
+			return this;
+		var tMatrix = this.clone().transpose();
+		var adjMatrix = new Matrix3;
+		for(var row=0;row<3;row++)
+		{
+			for(var col=0;col<3;col++)
+			{
+				var minorDet = tMatrix.minorDeterminant(row,col);
+				adjMatrix.elements[(row*3)+col] = minorDet;
+			}
+		}
+		for(var i=0;i<9;i++)
+		{
+			if(i % 2)
+				adjMatrix.elements[i] = adjMatrix.elements[i] * -1;
+		}
+		var inverseMat = new Matrix3;
+		for(var i=0;i<9;i++)
+		{
+			inverseMat.elements[i] = adjMatrix.elements[i] / det;
+		}	
 
+		this.copy(inverseMat);
 		return this;
 	};
 
