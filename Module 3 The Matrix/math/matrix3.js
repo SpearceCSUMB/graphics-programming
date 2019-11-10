@@ -1,4 +1,5 @@
 /*
+ * Kevin Bentley and Samuel Pearce
  * An object representing a 3x3 matrix
  */
 
@@ -12,7 +13,6 @@ var Matrix3 = function() {
 	// This format will be similar to what we'll eventually need to provide the WebGL API
 	this.elements = new Float32Array(9);
 
-	// todo
 	// "this.elements" should be initialized with values equal to the identity matrix
 	for (var i = 0; i < 9; i++){
 		this.elements[i] = (i % 3 == Math.floor(i / 3)) ? 1 : 0;
@@ -20,7 +20,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.clone = function() {
-		// todo
 		// create a new Matrix3 instance that is an exact copy of 'this' one and return it
 		newMat = new Matrix3().set(this.elements[0],this.elements[1],this.elements[2],
 								   this.elements[3],this.elements[4],this.elements[5],
@@ -30,8 +29,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.copy = function(other) {
-		// todo
-
 		// copy all of the elements of other into the elements of 'this' matrix
 		for (var i = 0; i < 9; i++) {
 			this.elements[i] = other.elements[i];
@@ -41,7 +38,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.set = function (e11, e12, e13, e21, e22, e23, e31, e32, e33) {
-		// todo
 		// given the 9 elements passed in as argument e-row#col#, use
     	// them as the values to set on 'this' matrix.
 		// Order is left to right, top to bottom.
@@ -53,7 +49,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.getElement = function(row, col) {
-		// todo
 		// use the row and col to get the proper index into the 1d element array and return it
 		if (row == 0) {
 			index = col;
@@ -67,7 +62,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.setIdentity = function() {
-		// todo
 		// reset every element in 'this' matrix to make it the identity matrix
 		for (var i = 0; i < 9; ++i) {
 			this.elements[i] = (i % 3 == Math.floor(i / 3)) ? 1 : 0;
@@ -99,7 +93,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.multiplyScalar = function(s) {
-		// todo
 		for (var i = 0; i < 9; i++) {
 			this.elements[i] = this.elements[i]*s;
 		}
@@ -109,7 +102,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.multiplyRightSide = function(omr) { //omr = otherMatrixOnRight renamed for shorter steps below. 
-		// todo
 		// multiply 'this' matrix (on the left) by otherMatrixOnRight (on the right)
 		// The below is definitely not optimized but it gets the job done...
 		var a1 = ((this.elements[0] * omr.elements[0]) + (this.elements[1] * omr.elements[3]) + (this.elements[2] * omr.elements[6]));
@@ -130,7 +122,6 @@ var Matrix3 = function() {
 
 	// -------------------------------------------------------------------------
 	this.determinant = function() {
-		// todo
 		// compute and return the determinant for 'this' matrix
 		/*
 		*   0   1   2 

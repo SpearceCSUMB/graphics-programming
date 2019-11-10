@@ -1,4 +1,5 @@
 /*
+ * Authors: Kevin Bentley and Samuel Pearce
  * An object representing a 4x4 matrix
  */
 
@@ -71,12 +72,12 @@ var Matrix4 = function(x, y, z) {
 	};
 
 	// -------------------------------------------------------------------------
-	this.setTranslation = function(arg1, arg2, arg3) {
-		// todo - wipe out the existing matrix and make it a pure translation
+	this.setTranslation = function(arg1, arg2, arg3) {        
+        //      - wipe out the existing matrix and make it a pure translation
+        this.setIdentity();
 		//      - If arg1 is a Vector3, use its components and ignore arg2 and arg3
 		//      - O.W., treat arg1 as x, arg2 as y, and arg3 as z
 		if (arg1 instanceof Vector3) {
-			//...
 			this.elements[3] = arg1.x;
 			this.elements[7] = arg1.y;
 			this.elements[11] = arg1.z;
@@ -106,15 +107,15 @@ var Matrix4 = function(x, y, z) {
 
 	// -------------------------------------------------------------------------
 	this.setPerspective = function(fovy, aspect, near, far) {
-		// todo - convert fovy to radians
+		// convert fovy to radians
 		var fovyRads = fovy * Math.PI / 180;
-		// todo -compute t (top) and r (right)
+		// compute t (top) and r (right)
 		var t = 1/Math.tan(fovyRads * 0.5);
 		var r = t / aspect;
 		// shortcut - use in place of this.elements
 		var e = this.elements;
 
-		// todo - set every element to the appropriate value
+		// set every element to the appropriate value
 		e[0] = r;
 		e[5] = t;
 		e[10] = -((far + near) / (far - near));
@@ -126,7 +127,7 @@ var Matrix4 = function(x, y, z) {
 
 	// -------------------------------------------------------------------------
 	this.translate = function(arg1, arg2, arg3) {
-		// todo - add a translation to the existing matrix
+		//      - add a translation to the existing matrix
 		//      - If arg1 is a Vector3, add its components and ignore arg2 and arg3
 		//      - O.W., treat arg1 as x, arg2 as y, and arg3 as z
 		if (arg1 instanceof Vector3) {
