@@ -192,8 +192,7 @@
 
         // allocate a matrix that we will reuse for this object (situate it in the world)
         triangleGeometry.worldMatrix = new Matrix4();
-        triangleGeometry.worldMatrix.setIdentity();
-        triangleGeometry.worldMatrix.setTranslation(0,0,-7);
+        
         // specify the shader which carries the instructions for "how" to render
         triangleGeometry.shaderProgram = shaderProgram;
 
@@ -224,7 +223,7 @@
 
 
     // -------------------------------------------------------------------------
-    function updateAndRender() {
+    function updateAndRender(timeElapsed) {
         requestAnimationFrame(updateAndRender);
 
         // todo #2
@@ -236,7 +235,7 @@
         gl.clearColor(0.707, 0.707, 1, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        renderTriangle(0 /* todo #11 - set the number of seconds elapsed */);
+        renderTriangle(timeElapsed / 1000);
         // renderLines();
         
     }
@@ -244,15 +243,12 @@
     // -------------------------------------------------------------------------
     function renderTriangle(secondsElapsedSinceStart) {
 
-        // todo #7
-        // - update the triangle geometry world matrix here (used to place the triangle into world space)
-        // - set view matrix to identity
-        // - set the projection matrix using values from online guide
-        
         // calculate the number of degrees we should have rotated given how much time has elapsed
         // 60 degrees per second
         var degrees = secondsElapsedSinceStart * 60;
-
+        triangleGeometry.worldMatrix.setIdentity();
+        triangleGeometry.worldMatrix.setRotationY(degrees);
+        triangleGeometry.worldMatrix.translate(0,0,-7);
         // todo #11
         // - set the triangle geometry world matrix to be a rotation based on "degrees"
 
