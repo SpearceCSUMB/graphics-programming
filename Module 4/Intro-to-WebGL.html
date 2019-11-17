@@ -14,8 +14,10 @@
     uniform mat4 uWorldMatrix;
     uniform mat4 uViewMatrix;
     uniform mat4 uProjectionMatrix;
+    attribute vec3 aVertexColor;
 
     varying vec3 vColor;
+    
 
     void main(void) {
         gl_Position =
@@ -24,7 +26,7 @@
             uWorldMatrix *
             vec4(aVertexPosition, 1.0); // treat the vertex as a point, multiply right to left
 
-        vColor = vec3(0.0, 0.0, 0.0);
+        vColor = aVertexColor;
     }
 </script>
 
@@ -63,7 +65,7 @@
 
     // we preallocate our view-related matrix objects here and reuse them every frame
     var viewMatrix = new Matrix4();
-    var projectionMatrix = new Matrix4();
+    var projectionMatrix = new Matrix4();    
 
     // the shader that will be used by each piece of geometry (they could each use their own shader but in this case it will be the same)
     var shaderProgram;
@@ -113,6 +115,7 @@
         if (!gl) {
             alert("Could not initialise WebGL, sorry :-(");
         }
+        projectionMatrix.setPerspective(45,gl.canvasWidth/gl.canvasHeight,0.1,1000);
     }
 
     // -------------------------------------------------------------------------
@@ -151,6 +154,8 @@
 
         // todo
         // Get a reference to the color attribute variable in the vertex shader and enable it
+        shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+        gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
         shaderProgram.worldMatrixUniform = gl.getUniformLocation(shaderProgram, "uWorldMatrix");
         shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uViewMatrix");
@@ -187,7 +192,8 @@
 
         // allocate a matrix that we will reuse for this object (situate it in the world)
         triangleGeometry.worldMatrix = new Matrix4();
-
+        triangleGeometry.worldMatrix.setIdentity();
+        triangleGeometry.worldMatrix.setTranslation(0,0,-7);
         // specify the shader which carries the instructions for "how" to render
         triangleGeometry.shaderProgram = shaderProgram;
 
@@ -199,6 +205,16 @@
 
         // todo
         // 1. create color buffer
+        var colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        var colors = [
+            1.0,   0.0,   0.0, // red
+            0.0,   1.0,   0.0, // green
+            0.0,   0.0,   1.0  // blue
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+        triangleGeometry.colorBuffer = colorBuffer;
+
         // 2. bind color buffer
         // 3. create color array
         // 4. "buffer" color data
@@ -251,6 +267,17 @@
         );
 
         // todo #10 - map the color buffer similar to the position buffer above
+
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, triangleGeometry.colorBuffer);
+        gl.vertexAttribPointer(
+            triangleGeometry.shaderProgram.vertexColorAttribute,
+            3,
+            gl.FLOAT,
+            gl.FALSE,
+            0, // stride - used for mixing data in a single buffer, ignore
+            0  // offset - used for mixing data in a single buffer, ignore
+        );
 
         // Send our matrices to the shader
         gl.uniformMatrix4fv(shaderProgram.worldMatrixUniform, false, triangleGeometry.worldMatrix.clone().transpose().elements);
