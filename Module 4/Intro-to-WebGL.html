@@ -5,6 +5,7 @@
 
 <script src="math/vector3.js"></script>
 <script src="math/matrix4.js"></script>
+<script src="webgl-debug.js"></script>
 
 <!-- vertex shader - Our part in the geometry processing part of the pipeline happens here -->
 <script id="shader-vs" type="x-shader/x-vertex">
@@ -84,13 +85,24 @@
         }
     }
 
+    function validateNoneOfTheArgsAreUndefined(functionName, args) {
+        for (var ii = 0; ii < args.length; ++ii) {
+            if (args[ii] === undefined) {
+                console.error("undefined passed to gl." + functionName + "(" +
+                     WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");
+            }
+        }
+    } 
+
+
     // -------------------------------------------------------------------------
     function initGL(canvas) {
         // todo #1 - uncomment below when ready
         var canvas = document.getElementById('webgl-canvas');
 
         try {
-            gl = canvas.getContext("webgl");
+            //gl = canvas.getContext("webgl");
+            gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));//, undefined, validateNoneOfTheArgsAreUndefined);
 
             // Note: gl does not naturally have canvasWidth or canvasHeight
             // We are attaching them to the object for convenience
@@ -128,7 +140,6 @@
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
             alert("Could not initialise shaders");
         }
-
         gl.useProgram(shaderProgram);
 
         // Here we get references to all of our "attributes" and "uniforms" and store them on the shaderProgram object.
@@ -203,7 +214,7 @@
         // todo #2
         // specify what portion of the canvas we want to draw to (all of it, full width and height)
         // uncomment when ready to implement
-        gl.viewport(0, 0, gl.canvaswidth, gl.canvasheight);
+        gl.viewport(0, 0, gl.canvasWidth, gl.canvasHeight);
 
         // this is a new frame so let's clear out whatever happened last frame
         gl.clearColor(0.707, 0.707, 1, 1.0);
@@ -211,6 +222,7 @@
 
         renderTriangle(0 /* todo #11 - set the number of seconds elapsed */);
         // renderLines();
+        
     }
 
     // -------------------------------------------------------------------------
