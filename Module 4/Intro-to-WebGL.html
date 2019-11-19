@@ -80,7 +80,7 @@
         createTriangleGeometry();
 
         // bonus todo
-        // createLineGridGeometry();
+        createLineGridGeometry();
 
         if (gl) {
             updateAndRender();
@@ -115,7 +115,9 @@
         if (!gl) {
             alert("Could not initialise WebGL, sorry :-(");
         }
+        gl.enable(gl.DEPTH_TEST);
         projectionMatrix.setPerspective(45,gl.canvasWidth/gl.canvasHeight,0.1,1000);
+        
     }
 
     // -------------------------------------------------------------------------
@@ -236,7 +238,7 @@
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         renderTriangle(timeElapsed / 1000);
-        // renderLines();
+        renderLines(timeElapsed / 1000);
         
     }
 
@@ -287,37 +289,45 @@
     function createLineGridGeometry() {
         // allocate a matrix that we will reuse for this object (situate it in the world)
         lineGridGeometry.worldMatrix = new Matrix4();
-
         // specify the shader which carries the instructions for "how" to render
-        triangleGeometry.shaderProgram = shaderProgram;
+        lineGridGeometry.shaderProgram = shaderProgram;
 
         var positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
         var linePositions = [];
 
         // specify the horizontal lines
         for (var i = -10; i <= 10; ++i) {
-            // add position for line start point (x value should be i)
-            // add position for line end point (x value should be i)
+            linePositions.push(i);
+            linePositions.push(-1);
+            linePositions.push(10);
+
+            linePositions.push(i);
+            linePositions.push(-1);
+            linePositions.push(-10);
+            
         }
+        
 
         // specify the lateral lines
         for (var i = -10; i <= 10; ++i) {
-            // add position for line start point (z value should be i)
-            // add position for line end point (z value should be i)
+            linePositions.push(10);
+            linePositions.push(-1);
+            linePositions.push(i);
+
+            linePositions.push(-10);
+            linePositions.push(-1);
+            linePositions.push(i);
+
         }
-
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(linePositions), gl.STATIC_DRAW);
-
-        var colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 
         var lineColors = [];
         for (var i = 0; i < linePositions.length / 3; ++i) {
             lineColors.push.apply(lineColors, [0, 0, 0]);
         }
-
+        var colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lineColors), gl.STATIC_DRAW);
 
         lineGridGeometry.positionBuffer = positionBuffer;
@@ -326,20 +336,40 @@
     }
 
     // -------------------------------------------------------------------------
-    function renderLines() {
-        // todo update the triangle geometry world matrix here (used to place the triangle into world space)
-        // todo set view matrix to identity
-        // todo set the projection matrix using values from online guide
+    function renderLines(secondsElapsedSinceStart) {
 
-        // todo bind and map(gl.vertexAttribPointer) the buffers
+        lineGridGeometry.worldMatrix.setIdentity();
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, lineGridGeometry.positionBuffer);
+        gl.vertexAttribPointer(
+            lineGridGeometry.shaderProgram.vertexPositionAttribute,
+            3,
+            gl.FLOAT,
+            gl.FALSE,
+            0, // stride - used for mixing data in a single buffer, ignore
+            0  // offset - used for mixing data in a single buffer, ignore
+        );
+
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, lineGridGeometry.colorBuffer);
+        gl.vertexAttribPointer(
+            lineGridGeometry.shaderProgram.vertexColorAttribute,
+            3,
+            gl.FLOAT,
+            gl.FALSE,
+            0, // stride - used for mixing data in a single buffer, ignore
+            0  // offset - used for mixing data in a single buffer, ignore
+        );
         // todo - send matrices to shader
-
+        gl.uniformMatrix4fv(shaderProgram.worldMatrixUniform, false, lineGridGeometry.worldMatrix.clone().transpose().elements);
+        gl.uniformMatrix4fv(shaderProgram.viewMatrixUniform, false, viewMatrix.clone().transpose().elements);
+        gl.uniformMatrix4fv(shaderProgram.projectionMatrixUniform, false, projectionMatrix.clone().transpose().elements);
         // --------------------------------------------
         // below is done for you, uncomment when ready
 
-        // gl.uniform1f(shaderProgram.timeUniform, time.secondsElapsedSinceStart);
-        // gl.drawArrays(gl.LINES, 0, lineGridGeometry.bufferItemCount);
+        gl.uniform1f(shaderProgram.timeUniform, secondsElapsedSinceStart);
+
+        gl.drawArrays(gl.LINES, 0, lineGridGeometry.bufferItemCount);
     }
 
 </script>
