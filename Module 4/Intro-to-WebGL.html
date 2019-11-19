@@ -33,11 +33,13 @@
 <!-- fragment shader - Pixel color is determined here -->
 <script id="shader-fs" type="x-shader/x-fragment">
     precision mediump float;
-
+    uniform float uTime;
     varying vec3 vColor;
 
     void main(void) {
-        gl_FragColor = vec4(vColor, 1.0);
+        vec3 sinColor = vec3(sin(uTime),sin(uTime),sin(uTime));
+        vec3 newColor = cross(vColor,sinColor);
+        gl_FragColor = vec4(newColor, 1.0);;
     }
 </script>
 
@@ -162,6 +164,7 @@
         shaderProgram.worldMatrixUniform = gl.getUniformLocation(shaderProgram, "uWorldMatrix");
         shaderProgram.viewMatrixUniform = gl.getUniformLocation(shaderProgram, "uViewMatrix");
         shaderProgram.projectionMatrixUniform = gl.getUniformLocation(shaderProgram, "uProjectionMatrix");
+        shaderProgram.timeUniform = gl.getUniformLocation(shaderProgram, "uTime");
     }
 
     // -------------------------------------------------------------------------
