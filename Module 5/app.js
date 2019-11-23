@@ -46,7 +46,10 @@ function initGL(canvas) {
         gl.canvasHeight = canvas.height;
 
         // todo enable depth test (z-buffering)
+        gl.enable(gl.DEPTH_TEST);
         // todo enable backface culling
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
     } catch (e) {}
 
     if (!gl) {
@@ -148,14 +151,29 @@ function updateAndRender() {
 
     groundGeometry.render(camera, projectionMatrix, textureShaderProgram);
 
+    var cameraPos = camera.getPosition();
+
+    function compareObjectsDescending(a,b)
+    {
+        var aDistanceSqr = cameraPos.clone().subtract(a.getPosition()).lengthSqr();
+        var bDistanceSqr = cameraPos.clone().subtract(b.getPosition()).lengthSqr();
+        if(bDistanceSqr > aDistanceSqr) return 1;
+        if(aDistanceSqr > bDistanceSqr) return -1;
+        return 0;
+    }
+
     // todo
     //   1. enable blending
+    gl.enable(gl.BLEND);
     //   2. set blend mode source to gl.SRC_ALPHA and destination to gl.ONE_MINUS_SRC_ALPHA
-
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     // uncomment when directed by guide
-    // for (var i = 0; i < sphereGeometryList.length; ++i) {
-    //     sphereGeometryList[i].render(camera, projectionMatrix, textureShaderProgram);
-    // }
+    sphereGeometryList.sort(compareObjectsDescending);
+
+    for (var i = 0; i < sphereGeometryList.length; ++i) {
+        sphereGeometryList[i].render(camera, projectionMatrix, textureShaderProgram);
+    }
 
     // todo - disable blending
+    gl.disable(gl.BLEND);
 }

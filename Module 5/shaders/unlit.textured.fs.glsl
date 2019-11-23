@@ -9,4 +9,5 @@ void main(void) {
     //gl_FragColor = vec4(0.0, 0.0, 0.0, uAlpha);
     //gl_FragColor = vec4(newTexCoord.x, newTexCoord.y, 0.0, uAlpha);
     gl_FragColor = texture2D(uTexture, newTexCoord);
+    gl_FragColor.a = uAlpha;
 }
