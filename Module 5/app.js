@@ -1,3 +1,4 @@
+//Authors: Samuel Pearce and Kevin Bentley
 'use strict'
 
 var gl;

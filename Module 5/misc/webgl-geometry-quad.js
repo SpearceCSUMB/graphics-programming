@@ -1,3 +1,4 @@
+//Authors: Samuel Pearce and Kevin Bentley
 /*
  * A simple object to encapsulate the data and operations of object rasterization
  */

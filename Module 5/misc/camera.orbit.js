@@ -1,3 +1,4 @@
+//Authors: Samuel Pearce and Kevin Bentley
 function OrbitCamera(input) {
     this.cameraWorldMatrix = new Matrix4();
     this.cameraTarget = new Vector3();

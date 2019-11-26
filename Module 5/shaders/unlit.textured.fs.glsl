@@ -1,3 +1,4 @@
+//Authors: Samuel Pearce and Kevin Bentley
 precision mediump float;
 
 uniform sampler2D uTexture;
