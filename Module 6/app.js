@@ -125,6 +125,34 @@ function updateAndRender() {
 
     // todo 
     // add keyboard controls for changing light direction here
+    
+    var deltaDegrees = 45.0;
+    var deltaRads = deltaDegrees * Math.PI / 180.0;
+    var cameraMat = new Matrix3();
+    cameraMat.identity();
+    if(appInput.down) {
+        cameraMat.setRotationX(deltaRads)
+    }
+    if(appInput.up) {
+        cameraMat.setRotationX(-deltaRads)
+    }
+    if(appInput.left) {
+        cameraMat.setRotationY(deltaRads)
+    }
+    if(appInput.right) {
+        cameraMat.setRotationY(-deltaRads)
+    }
+    if(appInput.w) {
+        cameraMat.setRotationZ(deltaRads)
+    }
+    if(appInput.s) {
+        cameraMat.setRotationZ(-deltaRads)
+    }
+    
+    cameraMat.multiplyVector(lightDirection);
+    //cameraMat.setRotationX()
+    //if(camera.inp)
+    
 
     time.update();
     camera.update(time.deltaTime);
